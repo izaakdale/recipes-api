@@ -87,25 +87,6 @@ paths:
                     description: No Records
             tags:
                 - recipe
-    /recipes/search:
-        get:
-            consumes:
-                - application/json
-            description: Search for a recipe with given tag
-            operationId: SearchRecipesHandler
-            parameters:
-                - description: recipe tag
-                  in: query
-                  name: tag
-                  required: true
-                  type: string
-            responses:
-                "200":
-                    description: Success
-                "404":
-                    description: No Records
-            tags:
-                - recipe
 produces:
     - application/json
 schemes:
