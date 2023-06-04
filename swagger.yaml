@@ -1,0 +1,98 @@
+basePath: /
+consumes:
+    - application/json
+host: localhost:8080
+info:
+    contact:
+        email: izaakdaledev@gmail.com
+    description: You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin.
+    title: Recipes API.
+    version: 1.0.0
+paths:
+    /recipes:
+        get:
+            operationId: ListRecipesHandler
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Success
+            summary: Returns a list of recipes.
+            tags:
+                - recipe
+        post:
+            description: Saves a new recipe
+            operationId: NewRecipeHandler
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Success
+                "400":
+                    description: Invalid Input
+            tags:
+                - recipe
+    /recipes/{id}:
+        delete:
+            description: Delete a recipe
+            operationId: DeleteRecipeHandler
+            parameters:
+                - description: ID of the recipe
+                  in: path
+                  name: id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: Success
+                "404":
+                    description: No Records
+            tags:
+                - recipe
+        put:
+            consumes:
+                - application/json
+            description: Update a recipe
+            operationId: UpdateRecipeHandler
+            parameters:
+                - description: ID of the recipe
+                  in: path
+                  name: id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: Success
+                "400":
+                    description: Invalid Input
+                "404":
+                    description: No Records
+            tags:
+                - recipe
+    /recipes/search:
+        get:
+            consumes:
+                - application/json
+            description: Search for a recipe with given tag
+            operationId: SearchRecipesHandler
+            parameters:
+                - description: recipe tag
+                  in: query
+                  name: tag
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: Success
+                "404":
+                    description: No Records
+            tags:
+                - recipe
+produces:
+    - application/json
+schemes:
+    - http
+securityDefinitions:
+    basic:
+        type: basic
+swagger: "2.0"

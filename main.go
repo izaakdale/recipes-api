@@ -1,3 +1,28 @@
+// Recipes API
+
+// Recipes API.
+// You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin.
+//
+//	 Schemes: http
+//	 BasePath: /
+//	 Version: 1.0.0
+//	 Host: localhost:8080
+//	 Contact: izaakdaledev@gmail.com
+//
+//	 Consumes:
+//	 - application/json
+//
+//	 Produces:
+//	 - application/json
+//
+//	 Security:
+//	 - basic
+//
+//	SecurityDefinitions:
+//	basic:
+//	  type: basic
+//
+// swagger:meta
 package main
 
 import (
@@ -35,6 +60,23 @@ func main() {
 	router.Run()
 }
 
+// swagger:route GET /recipes/search recipe SearchRecipesHandler
+// Search for a recipe with given tag
+//
+// parameters:
+//   - +name: tag
+//     in: query
+//     description: recipe tag
+//     required: true
+//     type: string
+//
+// Consumes:
+//   - application/json
+//
+// Responses:
+//
+//	200: description:Success
+//	404: description:No Records
 func SearchRecipesHandler(c *gin.Context) {
 	tag := c.Query("tag")
 	var recipeList []Recipe
@@ -57,6 +99,20 @@ func SearchRecipesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, recipeList)
 }
 
+// swagger:route DELETE /recipes/{id} recipe DeleteRecipeHandler
+// Delete a recipe
+//
+// parameters:
+//   - +name: id
+//     in: path
+//     description: ID of the recipe
+//     required: true
+//     type: string
+//
+// Responses:
+//
+//	200: description:Success
+//	404: description:No Records
 func DeleteRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
 
@@ -79,6 +135,24 @@ func DeleteRecipeHandler(c *gin.Context) {
 	})
 }
 
+// swagger:route PUT /recipes/{id} recipe UpdateRecipeHandler
+// Update a recipe
+//
+// parameters:
+//   - +name: id
+//     in: path
+//     description: ID of the recipe
+//     required: true
+//     type: string
+//
+// Consumes:
+//   - application/json
+//
+// Responses:
+//
+//	200: description:Success
+//	400: description:Invalid Input
+//	404: description:No Records
 func UpdateRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
 
@@ -109,10 +183,29 @@ func UpdateRecipeHandler(c *gin.Context) {
 	c.JSON(http.StatusAccepted, recipe)
 }
 
+// swagger:route GET /recipes recipe ListRecipesHandler
+// Returns a list of recipes.
+//
+// produces:
+// - application/json
+//
+// responses:
+//
+//	200: description:Success
 func ListRecipesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, recipes)
 }
 
+// swagger:route POST /recipes recipe NewRecipeHandler
+// Saves a new recipe
+//
+// produces:
+// - application/json
+//
+// responses:
+//
+//	200: description:Success
+//	400: description:Invalid Input
 func NewRecipeHandler(c *gin.Context) {
 	var recipe Recipe
 	if err := c.ShouldBindJSON(&recipe); err != nil {
