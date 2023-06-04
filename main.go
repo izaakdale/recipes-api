@@ -57,7 +57,38 @@ func main() {
 	router.PUT("/recipes/:id", UpdateRecipeHandler)
 	router.DELETE("/recipes/:id", DeleteRecipeHandler)
 	router.GET("/recipes/search", SearchRecipesHandler)
+	router.GET("/recipes/:id", GetRecipeHandler)
 	router.Run()
+}
+
+// swagger:route GET /recipes/{id} recipe GetRecipeHandler
+// Search for a recipe with given tag
+//
+// parameters:
+//   - +name: id
+//     in: path
+//     description: recipe id
+//     required: true
+//     type: string
+//
+// Consumes:
+//   - application/json
+//
+// Responses:
+//
+//	200: description:Success
+//	404: description:No Records
+func GetRecipeHandler(c *gin.Context) {
+	id := c.Params.ByName("id")
+	for _, r := range recipes {
+		if r.ID == id {
+			c.JSON(http.StatusOK, r)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{
+		"message": "no records exist for that id",
+	})
 }
 
 // swagger:route GET /recipes/search recipe SearchRecipesHandler
