@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +31,30 @@ func main() {
 	router.POST("/recipes", NewRecipeHandler)
 	router.PUT("/recipes/:id", UpdateRecipeHandler)
 	router.DELETE("/recipes/:id", DeleteRecipeHandler)
+	router.GET("/recipes/search", SearchRecipesHandler)
 	router.Run()
+}
+
+func SearchRecipesHandler(c *gin.Context) {
+	tag := c.Query("tag")
+	var recipeList []Recipe
+
+	for _, r := range recipes {
+		for _, t := range r.Tags {
+			if strings.EqualFold(t, tag) {
+				recipeList = append(recipeList, r)
+			}
+		}
+	}
+
+	if len(recipeList) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "no records found for that tag",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, recipeList)
 }
 
 func DeleteRecipeHandler(c *gin.Context) {
