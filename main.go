@@ -63,15 +63,22 @@ func main() {
 	}
 	log.Printf("Connected to mongo db\n")
 
-	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
-	rh := handlers.New(collection, redisClient)
+	recipeCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	usersCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
+	rh, ah := handlers.New(recipeCollection, usersCollection, redisClient)
 
 	router := gin.Default()
 	router.GET("/recipes", rh.ListRecipesHandler)
-	router.POST("/recipes", rh.NewRecipeHandler)
-	router.PUT("/recipes/:id", rh.UpdateRecipeHandler)
-	router.DELETE("/recipes/:id", rh.DeleteRecipeHandler)
-	router.GET("/recipes/:id", rh.GetRecipeHandler)
+	router.POST("/signin", ah.SignInHandler)
+	router.POST("/refresh", ah.RefreshHandler)
+	router.POST("/signup", ah.SignUpHandler)
+
+	authorized := router.Group("/")
+	authorized.Use(ah.AuthMiddleware())
+	authorized.POST("/recipes", rh.NewRecipeHandler)
+	authorized.PUT("/recipes/:id", rh.UpdateRecipeHandler)
+	authorized.DELETE("/recipes/:id", rh.DeleteRecipeHandler)
+	authorized.GET("/recipes/:id", rh.GetRecipeHandler)
 
 	router.Run()
 }

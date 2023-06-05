@@ -19,8 +19,8 @@ type RecipeHandler struct {
 	redisClient *redis.Client
 }
 
-func New(collection *mongo.Collection, rc *redis.Client) *RecipeHandler {
-	return &RecipeHandler{collection, rc}
+func New(recipeCollection *mongo.Collection, usersCollection *mongo.Collection, rc *redis.Client) (*RecipeHandler, *AuthHandler) {
+	return &RecipeHandler{recipeCollection, rc}, &AuthHandler{usersCollection}
 }
 
 // swagger:route GET /recipes/{id} recipe GetRecipeHandler
