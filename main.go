@@ -69,7 +69,10 @@ func main() {
 	usersCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
 	rh, ah := handlers.New(recipeCollection, usersCollection, redisClient)
 
-	store, _ := redisStore.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store, err := redisStore.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	router := gin.Default()
 	router.Use(sessions.Sessions("recipe_api", store))
