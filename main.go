@@ -3,24 +3,30 @@
 // Recipes API.
 // You can find out more about the API at https://github.com/PacktPublishing/Building-Distributed-Applications-in-Gin.
 //
-//	 Schemes: http
-//	 BasePath: /
-//	 Version: 1.0.0
-//	 Host: localhost:8080
-//	 Contact: izaakdaledev@gmail.com
+//		 Schemes: http
+//		 BasePath: /
+//		 Version: 1.0.0
+//		 Host: api.recipes.io:8080
+//		 Contact: izaakdaledev@gmail.com
 //
-//	 Consumes:
-//	 - application/json
+//		 SecurityDefinitions:
+//		 api_key:
+//	    type: apiKey
+//		   name: Authorization
+//		   in: Header
 //
-//	 Produces:
-//	 - application/json
+//		 Consumes:
+//		 - application/json
 //
-//	 Security:
-//	 - basic
+//		 Produces:
+//		 - application/json
 //
-//	SecurityDefinitions:
-//	basic:
-//	  type: basic
+//		 Security:
+//		 - basic
+//
+//		SecurityDefinitions:
+//		basic:
+//		  type: basic
 //
 // swagger:meta
 package main
@@ -81,7 +87,6 @@ func main() {
 	router.POST("/signin", ah.SignInHandler)
 	router.POST("/refresh", ah.RefreshHandler)
 	router.POST("/signup", ah.SignUpHandler)
-	router.POST("/signout", ah.SignOutHandler)
 
 	authorized := router.Group("/")
 	authorized.Use(ah.AuthMiddleware())
@@ -90,5 +95,5 @@ func main() {
 	authorized.DELETE("/recipes/:id", rh.DeleteRecipeHandler)
 	authorized.GET("/recipes/:id", rh.GetRecipeHandler)
 
-	router.Run()
+	router.RunTLS(":443", "certs/localhost.crt", "certs/localhost.key")
 }
