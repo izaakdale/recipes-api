@@ -30,6 +30,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/sessions"
+	redisStore "github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/izaakdale/recipes-api/handlers"
@@ -67,11 +69,16 @@ func main() {
 	usersCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
 	rh, ah := handlers.New(recipeCollection, usersCollection, redisClient)
 
+	store, _ := redisStore.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+
 	router := gin.Default()
+	router.Use(sessions.Sessions("recipe_api", store))
+
 	router.GET("/recipes", rh.ListRecipesHandler)
 	router.POST("/signin", ah.SignInHandler)
 	router.POST("/refresh", ah.RefreshHandler)
 	router.POST("/signup", ah.SignUpHandler)
+	router.POST("/signout", ah.SignOutHandler)
 
 	authorized := router.Group("/")
 	authorized.Use(ah.AuthMiddleware())
