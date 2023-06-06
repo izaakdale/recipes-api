@@ -1,7 +1,7 @@
 basePath: /
 consumes:
     - application/json
-host: localhost:8080
+host: api.recipes.io:8080
 info:
     contact:
         email: izaakdaledev@gmail.com
@@ -87,11 +87,45 @@ paths:
                     description: No Records
             tags:
                 - recipe
+    /refresh:
+        post:
+            description: Get new token in exchange for an old one
+            operationId: RefreshHandler
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Success
+                "400":
+                    description: Token does not need refreshing
+                "401":
+                    description: Invalid credentials
+            tags:
+                - auth
+    /signin:
+        post:
+            consumes:
+                - application/json
+            description: Login with username and password
+            operationId: SignInHandler
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Success
+                "401":
+                    description: Invalid credentials
+            tags:
+                - auth
 produces:
     - application/json
 schemes:
     - http
 securityDefinitions:
-    basic:
+    api_key:
+        in: Header
+        name: Authorization
+        type: apiKey
+    asic:
         type: basic
 swagger: "2.0"

@@ -38,6 +38,19 @@ func init() {
 	h = sha256.New()
 }
 
+// swagger:route POST /signin auth SignInHandler
+// Login with username and password
+//
+// Produces:
+//   - application/json
+//
+// Consumes:
+//   - application/json
+//
+// Responses:
+//
+//	200: description:Success
+//	401: description:Invalid credentials
 func (a *AuthHandler) SignInHandler(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -67,16 +80,17 @@ func (a *AuthHandler) SignInHandler(c *gin.Context) {
 	})
 }
 
-func (a *AuthHandler) SignOutHandler(c *gin.Context) {
-	session := sessions.Default(c)
-	session.Clear()
-	session.Save()
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "signed out...",
-	})
-}
-
+// swagger:route POST /refresh auth RefreshHandler
+// Get new token in exchange for an old one
+//
+// Produces:
+//   - application/json
+//
+// Responses:
+//
+//		200: description:Success
+//	    400: description:Token does not need refreshing
+//		401: description:Invalid credentials
 func (a *AuthHandler) RefreshHandler(c *gin.Context) {
 	tokenValue := c.GetHeader("Authorization")
 	claims := &Claims{}
