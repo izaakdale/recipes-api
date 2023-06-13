@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/json"
 	"hash"
 	"net/http"
 	"os"
@@ -9,10 +11,8 @@ import (
 
 	"github.com/auth0-community/go-auth0"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/izaakdale/recipes-api/models"
-	"github.com/rs/xid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/square/go-jose.v2"
@@ -69,15 +69,31 @@ func (a *AuthHandler) SignInHandler(c *gin.Context) {
 		return
 	}
 
-	sessionToken := xid.New().String()
-	session := sessions.Default(c)
-	session.Set("username", user.Username)
-	session.Set("token", sessionToken)
-	session.Save()
+	url := "https://" + os.Getenv("AUTH0_DOMAIN") + "/oauth/token"
+	var payload = struct {
+		ClientID     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+		Audience     string `json:"audience"`
+		GrantType    string `json:"grant_type"`
+	}{
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
+		Audience:     os.Getenv("AUTH0_API_IDENTIFIER"),
+		GrantType:    "client_credentials",
+	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "user signed in",
-	})
+	payBytes, _ := json.Marshal(payload)
+	buf := bytes.NewBuffer(payBytes)
+	req, _ := http.NewRequest(http.MethodPost, url, buf)
+	req.Header.Add("content-type", "application/json")
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+
+	respPayload := make(map[string]any)
+	json.NewDecoder(res.Body).Decode(&respPayload)
+
+	c.JSON(http.StatusOK, respPayload)
 }
 
 // swagger:route POST /refresh auth RefreshHandler

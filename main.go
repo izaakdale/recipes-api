@@ -34,8 +34,11 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	redisStore "github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -54,7 +57,7 @@ func init() {
 func main() {
 	ctx := context.Background()
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     os.Getenv("REDIS_URI"),
 		Password: "",
 		DB:       0,
 	})
@@ -75,12 +78,20 @@ func main() {
 	usersCollection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("users")
 	rh, ah := handlers.New(recipeCollection, usersCollection, redisClient)
 
-	store, err := redisStore.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store, err := redisStore.NewStore(10, "tcp", os.Getenv("REDIS_URI"), "", []byte("secret"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{http.MethodGet, http.MethodOptions},
+		AllowHeaders:     []string{"ORIGIN"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	router.Use(sessions.Sessions("recipe_api", store))
 
 	router.GET("/recipes", rh.ListRecipesHandler)
@@ -95,5 +106,6 @@ func main() {
 	authorized.DELETE("/recipes/:id", rh.DeleteRecipeHandler)
 	authorized.GET("/recipes/:id", rh.GetRecipeHandler)
 
-	router.RunTLS(":443", "certs/localhost.crt", "certs/localhost.key")
+	// router.RunTLS(":443", "certs/localhost.crt", "certs/localhost.key")
+	router.Run()
 }

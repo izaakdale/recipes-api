@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  api:
+    image: recipes-api
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/test?authSource=admin&readPreference=primary&ssl=false
+      - MONGO_DATABASE=demo
+      - RABBITMQ_URI=amqp://user:password@rabbitmq:5672
+      - RABBITMQ_QUEUE=rss_urls
+      - REDIS_URI=redis:6379
+    networks:
+      - api_network
+    external_links:
+      - mongodb
+      - redis
+    deploy:
+      replicas: 3
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - api_network
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - api_network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+  nginx:
+    image: nginx
+    ports:
+      - 80:80
+    volumes:
+      - $PWD/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api
+    networks:
+      - api_network
+  dashboard:
+    image: dashboard
+    networks:
+      - api_network
+
+networks:
+  api_network:

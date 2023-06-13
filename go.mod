@@ -5,10 +5,10 @@ go 1.20
 require (
 	github.com/auth0-community/go-auth0 v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/rs/xid v1.5.0
 	go.mongodb.org/mongo-driver v1.11.6
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
